@@ -256,11 +256,11 @@ const FAHRER_FARBEN = {
 
 // Team-Datenbank (für Strafseite + Ergebnistabelle)
 const TEAMS = {
-  'brohogs racing':           { logo: 'https://i.postimg.cc/mZdpg8JH/BROHOGS-Logo-10-Jahre.png', f: '#6f3c06' },
+  'brohogs racing':           { logo: 'https://i.postimg.cc/mZdpg8JH/BROHOGS-Logo-10-Jahre.png', f: '#b28448' },
   'hyper engine racing team': { logo: 'https://i.postimg.cc/bJNDFhp0/HERT-neu.png',              f: '#ff00ff' },
   'dragon force f1cc team':   { logo: 'https://i.imgur.com/m5bK6PY.png',                         f: '#9900ff' },
   'dragon force':             { logo: 'https://i.imgur.com/m5bK6PY.png',                         f: '#9900ff' },
-  'infinity racing':          { logo: 'https://i.imgur.com/7SNUgPy.png',                          f: '#0000ff' },
+  'infinity racing':          { logo: 'https://i.imgur.com/7SNUgPy.png',                          f: '#0536a4' },
   'pegasus racing':           { logo: 'https://i.imgur.com/Du2GByr.png',                          f: '#01ffff' },
   '2fastracing':              { logo: 'https://i.imgur.com/mZaHdQE.png',                          f: '#ff9900' },
   '2fast racing':             { logo: 'https://i.imgur.com/mZaHdQE.png',                          f: '#ff9900' },
@@ -269,7 +269,7 @@ const TEAMS = {
   'cobras squad racing':      { logo: 'https://i.postimg.cc/mgcYJr0w/COBRAS-SQUAD.png',           f: '#38761d' },
   'cobra squad racing':       { logo: 'https://i.postimg.cc/mgcYJr0w/COBRAS-SQUAD.png',           f: '#38761d' },
   'cobra squad':              { logo: 'https://i.postimg.cc/mgcYJr0w/COBRAS-SQUAD.png',           f: '#38761d' },
-  'black bull racing':        { logo: 'https://i.imgur.com/D5pz4fV.png',                          f: '#666666' },
+  'black bull racing':        { logo: 'https://i.imgur.com/D5pz4fV.png',                          f: '#ece5d0' },
 };
 
 function getTeam(name) {
@@ -432,7 +432,23 @@ function buildStrafseite(einst, dok, fahrer, qrCounter) {
 }
 
 function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebnisRows, letztesDokNr, uhrzeit) {
-  const posHTML = posAend.length > 0 ? `
+
+  const dokNr = parseInt(letztesDokNr) + 1;
+
+  const metaHTML = `
+  <div class="meta">
+    <div class="meta-links">
+      <div class="meta-z"><span class="ml">Vom</span><span class="mv">Komitee</span></div>
+      <div class="meta-z"><span class="ml">An</span><span class="mv bold">Alle Fahrer</span></div>
+    </div>
+    <div class="meta-rechts">
+      <div class="meta-z"><span class="ml">Dokument</span><span class="mv bold">${dokNr}</span></div>
+      <div class="meta-z"><span class="ml">Datum</span><span class="mv">${einst.berichtDatum}</span></div>
+      <div class="meta-z"><span class="ml">Uhrzeit</span><span class="mv">${uhrzeit}</span></div>
+    </div>
+  </div>`;
+
+  const posKartenHTML = posAend.length > 0 ? `
   <div class="at">Positionsänderungen durch Komitee</div>
   <div class="pos-karten">
     ${posAend.map(p => `
@@ -447,12 +463,10 @@ function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebn
     </div>`).join('')}
   </div>` : '';
 
-  // Maps aufbauen
+  // Maps
   const komMap = {};
-  komiteestrafen.forEach(k => {
-    komMap[k.fahrer.toLowerCase()] = k.strafe; // strafe ist schon gekürzt
-  });
-  console.log('komMap:', komMap); // Debug
+  komiteestrafen.forEach(k => { komMap[k.fahrer.toLowerCase()] = k.strafe; });
+  console.log('komMap:', komMap);
   const posUpMap = {}, posDownMap = {};
   posAend.forEach(p => {
     if (p.typ === 'aufstieg') posUpMap[p.fahrer.toLowerCase()] = true;
@@ -461,7 +475,7 @@ function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebn
   const spielMap = {};
   spielstrafen.forEach(s => { spielMap[s.fahrer.toLowerCase()] = s; });
 
-    const ergZeilen = ergebnisRows.map(row => {
+  const ergZeilen = ergebnisRows.map(row => {
     const fname  = row.fahrer || '';
     const fkey   = fname.toLowerCase();
     const farbe  = FAHRER_FARBEN[fkey] || '#787f84';
@@ -469,41 +483,29 @@ function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebn
     const isDown = !!posDownMap[fkey];
     const isDNF  = !!(row.dnf && row.dnf.trim());
     const rowCls = isDNF ? 'dnf' : isUp ? 'up' : isDown ? 'down' : '';
+    const pfeil  = isUp ? `<span class="pos-pfeil up">↑</span>` : isDown ? `<span class="pos-pfeil down">↓</span>` : '';
 
-    const pfeil = isUp
-      ? `<span class="pos-pfeil up">↑</span>`
-      : isDown ? `<span class="pos-pfeil down">↓</span>` : '';
-
-    // Team aus Ergebnis-Sheet
-    const teamObj = getTeam(row.team);
-    const teamColor = teamObj ? teamObj.f : '#787f84';
+    const teamObj      = getTeam(row.team);
+    const teamColor    = teamObj ? teamObj.f : '#787f84';
     const teamLogoHTML = teamObj ? `<img src="${teamObj.logo}" alt="">` : '';
-    const teamNameHTML = row.team
-      ? `<span style="font-size:10px;font-weight:700;color:${teamColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">${row.team}</span>`
-      : `<span style="font-size:10px;color:#555">Free Agent</span>`;
 
-    // Strafen-Zelle
     const kom = komMap[fkey];
     const sp  = spielMap[fkey];
     const parts = [];
     if (kom) parts.push(`<span class="st-komitee">${kom} ⚑</span>`);
     if (sp) {
-      if (sp.status === 'gestrichen') {
-        parts.push(`<span class="st-gestrichen">${sp.strafe}</span>`);
-      } else if (sp.status === 'reduziert') {
-        parts.push(`<span class="st-reduziert"><span class="alt">${sp.strafe}</span><span class="neu">${sp.neu}</span></span>`);
-      } else {
-        parts.push(`<span class="st-spiel">${sp.strafe}</span>`);
-      }
+      if (sp.status === 'gestrichen') parts.push(`<span class="st-gestrichen">${sp.strafe}</span>`);
+      else if (sp.status === 'reduziert') parts.push(`<span class="st-reduziert"><span class="alt">${sp.strafe}</span><span class="neu">${sp.neu}</span></span>`);
+      else parts.push(`<span class="st-spiel">${sp.strafe}</span>`);
     }
     const strafenInner = parts.length ? parts.join('&nbsp;') : '<span style="color:#333">–</span>';
 
-    const flBadge  = row.fl  ? `<span class="ebadge eb-fl">FL</span>`        : '';
-    const tsBadge  = row.ts  ? `<span class="ebadge eb-ts">${row.ts}</span>`  : '';
-    const fdtBadge = row.fdt ? `<span class="ebadge eb-fdt">FDT</span>`       : '';
-    const müBadge  = row.müm ? `<span class="ebadge eb-müm">MÜM</span>`       : '';
-    const sbfBadge = row.sbf ? `<span class="ebadge eb-sbf">SBF</span>`       : '';
-    const dnfBadge = isDNF   ? `<span class="ebadge eb-dnf">DNF</span>`       : '';
+    const flBadge  = row.fl  ? `<span class="ebadge eb-fl">FL</span>`       : '';
+    const tsBadge  = row.ts  ? `<span class="ebadge eb-ts">${row.ts}</span>`: '';
+    const fdtBadge = row.fdt ? `<span class="ebadge eb-fdt">FDT</span>`     : '';
+    const müBadge  = row.müm ? `<span class="ebadge eb-müm">MÜM</span>`     : '';
+    const sbfBadge = row.sbf ? `<span class="ebadge eb-sbf">SBF</span>`     : '';
+    const dnfBadge = isDNF   ? `<span class="ebadge eb-dnf">DNF</span>`     : '';
 
     return `
     <div class="erg-cols erg-row ${rowCls}" style="padding-left:14px">
@@ -523,25 +525,7 @@ function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebn
     </div>`;
   }).join('');
 
-  const dokNr = parseInt(letztesDokNr) + 1;
-
-  return `
-<div class="seite">
-  ${kopfHTML(einst)}
-  <div class="meta">
-    <div class="meta-links">
-      <div class="meta-z"><span class="ml">Vom</span><span class="mv">Komitee</span></div>
-      <div class="meta-z"><span class="ml">An</span><span class="mv bold">Alle Fahrer</span></div>
-    </div>
-    <div class="meta-rechts">
-      <div class="meta-z"><span class="ml">Dokument</span><span class="mv bold">${dokNr}</span></div>
-      <div class="meta-z"><span class="ml">Datum</span><span class="mv">${einst.berichtDatum}</span></div>
-      <div class="meta-z"><span class="ml">Uhrzeit</span><span class="mv">${uhrzeit}</span></div>
-    </div>
-  </div>
-
-  ${posHTML}
-
+  const ergebnisTabHTML = `
   <div class="at">Endgültiges Rennergebnis</div>
   <div class="ergtab">
     <div class="erg-cols erg-head">
@@ -559,16 +543,44 @@ function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebn
       <div style="text-align:right">PKT</div>
     </div>
     ${ergZeilen}
-  </div>
+  </div>`;
 
+  const einspruchHTML = `
   <div class="einspruch">
     Wenn es <strong>signifikante, neue Beweise/Beispiele</strong> gibt, darf gegen dieses Rennergebnis
     bis zum <strong>${einst.einspruchsfrist} 23:59 Uhr</strong> Einspruch eingelegt werden.
     Diese dürfen nur auf Grundlage von aktuell verfügbaren Regelwerken getätigt werden.
-  </div>
+  </div>`;
 
+  // Ab 4 Positionsänderungen: aufteilen auf 2 Seiten
+  if (posAend.length >= 4) {
+    return `
+<div class="seite">
+  ${kopfHTML(einst)}
+  ${metaHTML}
+  ${posKartenHTML}
+  ${fussHTML(einst, dokNr)}
+</div>
+<div class="seitentrenn"></div>
+<div class="seite">
+  ${kopfHTML(einst)}
+  ${ergebnisTabHTML}
+  ${einspruchHTML}
   ${fussHTML(einst, dokNr)}
 </div>`;
+  }
+
+  // Alles auf einer Seite
+  return `
+<div class="seite">
+  ${kopfHTML(einst)}
+  ${metaHTML}
+  ${posKartenHTML}
+  ${ergebnisTabHTML}
+  ${einspruchHTML}
+  ${fussHTML(einst, dokNr)}
+</div>`;
+}
 }
 
 // ERGEBNISSE PARSEN
