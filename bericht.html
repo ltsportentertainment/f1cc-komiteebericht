@@ -230,7 +230,6 @@ const CFG = {
   GID_ERGEBNISSE:    '1314431822',
 };
 
-// Fahrer → Farbe (direkte Zuordnung, da Teamzugehörigkeit im Ergebnis-Sheet fehlt)
 const FAHRER_FARBEN = {
   'razerj1887':        '#01ffff',
   'lemi':              '#38761d',
@@ -254,7 +253,6 @@ const FAHRER_FARBEN = {
   'bvblars':           '#ece5d0',
 };
 
-// Team-Datenbank (für Strafseite + Ergebnistabelle)
 const TEAMS = {
   'brohogs racing':           { logo: 'https://i.postimg.cc/mZdpg8JH/BROHOGS-Logo-10-Jahre.png', f: '#b28448' },
   'hyper engine racing team': { logo: 'https://i.postimg.cc/bJNDFhp0/HERT-neu.png',              f: '#ff00ff' },
@@ -277,15 +275,12 @@ function getTeam(name) {
   return TEAMS[name.trim().toLowerCase()] || null;
 }
 
-// Strafen-Text kürzen: "+3 Sekunden Strafe für Michi" → "+3s"
-// Gibt leeren String zurück wenn keine Zeitstrafe erkennbar (z.B. "Rennsperre")
 function kuerzeStrafe(text) {
   if (!text) return '';
   const m = text.match(/(\d+)\s*[Ss]ekunden?/);
   if (m) return `+${m[1]}s`;
   const m2 = text.match(/\+\s*(\d+)\s*s/i);
   if (m2) return `+${m2[1]}s`;
-  // Kein Zeitmuster gefunden → keine Strafe im Ergebnis anzeigen
   return '';
 }
 
@@ -341,11 +336,9 @@ function buildStrafseite(einst, dok, fahrer, qrCounter) {
   const typ = (dok.urteilTyp || 'strafe').toLowerCase();
   const icon = typ === 'strafe' ? '⚠️' : typ === 'streichung' ? '✅' : 'ℹ️';
 
-  // "An"-Feld: manuelles An aus Spalte B (erste Zeile) ODER alle Teams zusammenfassen
   const alleTeamsImFall = [...new Set(fahrer.map(f => f.team).filter(Boolean))];
   const anText = dok.an || (alleTeamsImFall.length > 0 ? alleTeamsImFall.join(' & ') : 'Alle Fahrer');
 
-  // Mehrere Fahrer-Zeilen
   const fahrerNamen = fahrer.map((f, i) => `
     <div class="dz">
       <div class="dl">${i === 0 ? 'Fahrer' : ''}</div>
@@ -364,7 +357,6 @@ function buildStrafseite(einst, dok, fahrer, qrCounter) {
     </div>`;
   }).join('');
 
-  // QR-Codes
   let qrHTML = '';
   const links = [dok.videoLink1, dok.videoLink2].filter(Boolean);
   const qrIds = [];
@@ -463,10 +455,10 @@ function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebn
     </div>`).join('')}
   </div>` : '';
 
-  // Maps
   const komMap = {};
   komiteestrafen.forEach(k => { komMap[k.fahrer.toLowerCase()] = k.strafe; });
   console.log('komMap:', komMap);
+
   const posUpMap = {}, posDownMap = {};
   posAend.forEach(p => {
     if (p.typ === 'aufstieg') posUpMap[p.fahrer.toLowerCase()] = true;
@@ -483,7 +475,13 @@ function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebn
     const isDown = !!posDownMap[fkey];
     const isDNF  = !!(row.dnf && row.dnf.trim());
     const rowCls = isDNF ? 'dnf' : isUp ? 'up' : isDown ? 'down' : '';
-    const pfeil  = isUp ? `<span class="pos-pfeil up">↑</span>` : isDown ? `<span class="pos-pfeil down">↓</span>` : '';
+
+    // FIX 1: Roter Pfeil für absteigende Fahrer wird jetzt korrekt gerendert
+    const pfeil = isUp
+      ? `<span class="pos-pfeil up">↑</span>`
+      : isDown
+        ? `<span class="pos-pfeil down">↓</span>`
+        : '';
 
     const teamObj      = getTeam(row.team);
     const teamColor    = teamObj ? teamObj.f : '#787f84';
@@ -552,7 +550,6 @@ function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebn
     Diese dürfen nur auf Grundlage von aktuell verfügbaren Regelwerken getätigt werden.
   </div>`;
 
-  // Ab 4 Positionsänderungen: aufteilen auf 2 Seiten
   if (posAend.length >= 4) {
     return `
 <div class="seite">
@@ -570,7 +567,6 @@ function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebn
 </div>`;
   }
 
-  // Alles auf einer Seite
   return `
 <div class="seite">
   ${kopfHTML(einst)}
@@ -582,34 +578,27 @@ function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebn
 </div>`;
 }
 
-// ERGEBNISSE PARSEN
-// Sheets-Struktur: Zeile 1 = Header, Rennen 1 startet in Zeile 12 (Index 11 nach 0-basis, Index 10 nach Header-Skip)
-// Rennen 2: Zeile 48 → Index 47 → nach Header-Skip: 46
-// Formel: startIdx = (nr-1)*36 + 10  [nach 1 Header-Zeile abgezogen]
 function parseErgebnisse(csv, rennnummer) {
-  const rows = parseCSV(csv).slice(1); // Header überspringen
+  const rows = parseCSV(csv).slice(1);
   const nr = parseInt(rennnummer);
-  // Rennen 1: Sheets-Zeile 12 = Index 11, nach Header-Skip = Index 10
-  // Rennen 2: Sheets-Zeile 48 = Index 47, nach Header-Skip = Index 46
-  // → startIdx = (nr-1)*36 + 10
   const startIdx = (nr - 1) * 36 + 10;
-  const block = rows.slice(startIdx, startIdx + 22); // 22 Fahrer
+  const block = rows.slice(startIdx, startIdx + 22);
 
   const ergebnisse = [];
   block.forEach((r, i) => {
-    const fahrer = (r[10] || '').trim(); // Spalte K
+    const fahrer = (r[10] || '').trim();
     if (!fahrer) return;
     ergebnisse.push({
       pos:    i + 1,
       fahrer: fahrer,
-      team:   (r[11] || '').trim(), // Spalte L – Team
-      fl:     (r[14] || '').trim(), // Spalte O – FL
-      ts:     (r[15] || '').trim(), // Spalte P – TS
-      fdt:    (r[16] || '').trim(), // Spalte Q – FDT
-      müm:    (r[17] || '').trim(), // Spalte R – MÜM
-      sbf:    (r[18] || '').trim(), // Spalte S – SBF
-      dnf:    (r[19] || '').trim(), // Spalte T – DNF
-      gesPkt: (r[21] || '0').trim(), // Spalte V – GES-PKT
+      team:   (r[11] || '').trim(),
+      fl:     (r[14] || '').trim(),
+      ts:     (r[15] || '').trim(),
+      fdt:    (r[16] || '').trim(),
+      müm:    (r[17] || '').trim(),
+      sbf:    (r[18] || '').trim(),
+      dnf:    (r[19] || '').trim(),
+      gesPkt: (r[21] || '0').trim(),
     });
   });
   return ergebnisse;
@@ -631,7 +620,6 @@ async function main() {
 
     ladeText.textContent = 'Verarbeiten …';
 
-    // EINSTELLUNGEN (Zeile 2–7 in Sheets = Index 1–6 nach Header-Skip)
     const eRows = parseCSV(csvEinst).slice(1);
     const einst = {
       rennnummer:          (eRows[0]?.[1] || '').trim(),
@@ -640,14 +628,17 @@ async function main() {
       renndatum:           (eRows[3]?.[1] || '').trim(),
       einspruchsfrist:     (eRows[4]?.[1] || '').trim(),
       berichtDatum:        (eRows[5]?.[1] || '').trim(),
-      ergebnisDokUhrzeit:  (eRows[6]?.[1] || '').trim(), // Zeile 7: Uhrzeit des Ergebnisdokuments
+      ergebnisDokUhrzeit:  (eRows[6]?.[1] || '').trim(),
     };
 
     const fRows = parseCSV(csvFaelle).slice(1).filter(r => r[0]?.trim());
     const dokMap = new Map();
+
     fRows.forEach(r => {
       const nr = r[0].trim();
+
       if (!dokMap.has(nr)) {
+        // Erste Zeile dieses Dokuments: Objekt anlegen
         dokMap.set(nr, {
           dokNr:       nr,
           datum:       r[2]?.trim() || '',
@@ -660,16 +651,30 @@ async function main() {
           begruendung: r[11]?.trim() || '',
           videoLink1:  r[12]?.trim() || '',
           videoLink2:  r[13]?.trim() || '',
-          bestrafter:  r[14]?.trim() || '', // Spalte O – wer die Strafe bekommt
+          bestrafter:  r[14]?.trim() || '',
           fahrer: [],
           anTeams: [],
         });
+      } else {
+        // FIX 2: Folgezeilen desselben Dokuments – Felder überschreiben wenn
+        // sie in dieser Zeile einen Wert haben und bisher leer waren.
+        // So ist es egal, in welcher Zeile die Infos im Sheet stehen.
+        const dok = dokMap.get(nr);
+        if (r[2]?.trim()  && !dok.datum)       dok.datum       = r[2].trim();
+        if (r[3]?.trim()  && !dok.uhrzeit)     dok.uhrzeit     = r[3].trim();
+        if (r[6]?.trim()  && !dok.session)     dok.session     = r[6].trim();
+        if (r[7]?.trim()  && !dok.runde)       dok.runde       = r[7].trim();
+        if (r[8]?.trim()  && !dok.vergehen)    dok.vergehen    = r[8].trim();
+        if (r[9]?.trim()  && !dok.urteilText)  dok.urteilText  = r[9].trim();
+        if (r[10]?.trim() && !dok.urteilTyp || r[10]?.trim() === 'strafe' || r[10]?.trim() === 'streichung' || r[10]?.trim() === 'keine') {
+          if (r[10]?.trim()) dok.urteilTyp = r[10].trim();
+        }
+        if (r[11]?.trim() && !dok.begruendung) dok.begruendung = r[11].trim();
+        if (r[12]?.trim() && !dok.videoLink1)  dok.videoLink1  = r[12].trim();
+        if (r[13]?.trim() && !dok.videoLink2)  dok.videoLink2  = r[13].trim();
+        if (r[14]?.trim() && !dok.bestrafter)  dok.bestrafter  = r[14].trim();
       }
-      // Falls bestrafter in einer späteren Zeile steht, auch übernehmen
-      const bestrafterInZeile = r[14]?.trim() || '';
-      if (bestrafterInZeile && !dokMap.get(nr).bestrafter) {
-        dokMap.get(nr).bestrafter = bestrafterInZeile;
-      }
+
       const fahrerName = r[4]?.trim();
       const teamName   = r[5]?.trim();
       if (fahrerName) {
@@ -679,12 +684,11 @@ async function main() {
         dokMap.get(nr).anTeams.push(teamName);
       }
     });
-    // An-Feld aus gesammelten Teams setzen – untereinander statt mit &
+
     dokMap.forEach(dok => {
       dok.an = dok.anTeams.length > 0 ? dok.anTeams.join('<br>') : 'Alle Fahrer';
     });
 
-    // POSITIONSÄNDERUNGEN
     const pRows = parseCSV(csvPos).slice(1).filter(r => r[0]?.trim());
     const posAend = pRows.map(r => ({
       fahrer: r[0].trim(),
@@ -693,7 +697,6 @@ async function main() {
       typ:    r[3].trim().toLowerCase(),
     }));
 
-    // SPIELSTRAFEN
     const sRows = parseCSV(csvSpiel).slice(1).filter(r => r[0]?.trim());
     const spielstrafen = sRows.map(r => ({
       fahrer: r[0].trim(),
@@ -702,14 +705,12 @@ async function main() {
       neu:    r[3]?.trim() || '',
     }));
 
-    // KOMITEESTRAFEN – nur dem bestraften Fahrer zuordnen (Spalte O)
     const komiteestrafen = [];
     dokMap.forEach(dok => {
       const t = dok.urteilTyp.toLowerCase();
       if (t === 'strafe' || t === 'streichung') {
         const gekuerzt = kuerzeStrafe(dok.urteilText);
         if (gekuerzt && dok.bestrafter) {
-          // Kommagetrennte Liste der bestraften Fahrer
           const liste = dok.bestrafter.split(',').map(s => s.trim().toLowerCase());
           liste.forEach(name => {
             if (name) komiteestrafen.push({ fahrer: name, strafe: gekuerzt });
@@ -718,13 +719,11 @@ async function main() {
       }
     });
 
-    // UHRZEIT des letzten Fall-Dokuments für Ergebnisdokument
     const letzteNr = [...dokMap.keys()].sort((a, b) => parseInt(a) - parseInt(b)).at(-1) || '0';
     const letzteUhrzeit = dokMap.get(letzteNr)?.uhrzeit || '';
 
     const ergebnisRows = parseErgebnisse(csvErg, einst.rennnummer);
 
-    // HTML AUFBAUEN
     ladeText.textContent = 'Seiten aufbauen …';
     let allHTML = '';
     const alleQrIds = [];
@@ -745,7 +744,6 @@ async function main() {
 
     document.getElementById('inhalt').innerHTML = allHTML;
 
-    // QR generieren
     ladeText.textContent = 'QR-Codes generieren …';
     alleQrIds.forEach(({ id, url }) => {
       const el = document.getElementById(id);
