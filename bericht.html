@@ -333,8 +333,6 @@ function fussHTML(einst, dokNr) {
 }
 
 function buildStrafseite(einst, dok, fahrer, qrCounter) {
-  const typ = (dok.urteilTyp || 'strafe').toLowerCase();
-  const icon = typ === 'strafe' ? '⚠️' : typ === 'streichung' ? '✅' : 'ℹ️';
 
   const alleTeamsImFall = [...new Set(fahrer.map(f => f.team).filter(Boolean))];
   const anText = dok.an || (alleTeamsImFall.length > 0 ? alleTeamsImFall.join(' & ') : 'Alle Fahrer');
@@ -357,29 +355,91 @@ function buildStrafseite(einst, dok, fahrer, qrCounter) {
     </div>`;
   }).join('');
 
-  let qrHTML = '';
-  const links = [dok.videoLink1, dok.videoLink2].filter(Boolean);
-  const qrIds = [];
-  if (links.length > 0) {
-    qrHTML = `<div class="at">Beweise / Videos</div><div class="qr-outer">`;
-    links.forEach((link, i) => {
-      const qrId = `qr${qrCounter + i}`;
-      qrIds.push({ id: qrId, url: link });
-      qrHTML += `
-      <div class="qr-wrap">
-        <div class="qr-code-box" id="${qrId}"></div>
-        <div class="qr-text">
-          <div class="qr-label">Video-Beweis ${i + 1}</div>
-          <div class="qr-link">${link}</div>
-          <div class="qr-hint">QR-Code scannen um Video zu öffnen</div>
-        </div>
-      </div>`;
-    });
-    qrHTML += `</div>`;
-  } else {
-    qrHTML = `<div class="at">Beweise / Videos</div><div class="textbox" style="color:#444;font-style:italic">Keine Beweise eingereicht</div>`;
-  }
+  let urteileHTML = '';
 
+dok.urteile.forEach((u, index) => {
+
+    const typ = (u.typ || 'strafe').toLowerCase();
+
+    const icon =
+        typ === 'strafe'
+            ? '⚠️'
+            : typ === 'streichung'
+                ? '✅'
+                : 'ℹ️';
+
+    urteileHTML += `
+        <div class="at">
+            Urteil${dok.urteile.length > 1 ? ` ${index + 1}` : ''}
+        </div>
+
+        <div class="urteil ${typ}">
+            <div class="u-icon">${icon}</div>
+            <div>
+                <div class="u-label">Entscheidung des Komitees</div>
+                <div class="u-text">${u.text || '–'}</div>
+            </div>
+        </div>
+
+        <div class="at">Begründung</div>
+        <div class="textbox">
+            ${u.begruendung || '–'}
+        </div>
+    `;
+
+    const links = [u.videoLink1, u.videoLink2].filter(Boolean);
+
+    if (links.length) {
+
+        urteileHTML += `<div class="at">Beweise / Videos</div><div class="qr-outer">`;
+
+        links.forEach((link, i) => {
+
+            const qrId = `qr${qrCounter++}`;
+
+            qrIds.push({
+                id: qrId,
+                url: link
+            });
+
+            urteileHTML += `
+                <div class="qr-wrap">
+
+                    <div class="qr-code-box" id="${qrId}"></div>
+
+                    <div class="qr-text">
+
+                        <div class="qr-label">
+                            Video-Beweis ${i + 1}
+                        </div>
+
+                        <div class="qr-link">
+                            ${link}
+                        </div>
+
+                        <div class="qr-hint">
+                            QR-Code scannen um Video zu öffnen
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+        });
+
+        urteileHTML += `</div>`;
+
+    } else {
+
+        urteileHTML += `
+            <div class="at">Beweise / Videos</div>
+            <div class="textbox" style="color:#444;font-style:italic">
+                Keine Beweise eingereicht
+            </div>
+        `;
+    }
+
+});
   const html = `
 <div class="seite">
   ${kopfHTML(einst)}
@@ -404,19 +464,7 @@ function buildStrafseite(einst, dok, fahrer, qrCounter) {
     <div class="dz"><div class="dl">Vergehen</div><div class="dv">${dok.vergehen || '–'}</div></div>
   </div>
 
-  <div class="at">Urteil</div>
-  <div class="urteil ${typ}">
-    <div class="u-icon">${icon}</div>
-    <div>
-      <div class="u-label">Entscheidung des Komitees</div>
-      <div class="u-text">${dok.urteilText}</div>
-    </div>
-  </div>
-
-  <div class="at">Begründung</div>
-  <div class="textbox">${dok.begruendung || '–'}</div>
-
-  ${qrHTML}
+${urteileHTML}
   ${fussHTML(einst, dok.dokNr)}
 </div>`;
 
@@ -640,40 +688,55 @@ async function main() {
       if (!dokMap.has(nr)) {
         // Erste Zeile dieses Dokuments: Objekt anlegen
         dokMap.set(nr, {
-          dokNr:       nr,
-          datum:       r[2]?.trim() || '',
-          uhrzeit:     r[3]?.trim() || '',
-          session:     r[6]?.trim() || '',
-          runde:       r[7]?.trim() || '',
-          vergehen:    r[8]?.trim() || '',
-          urteilText:  r[9]?.trim() || '',
-          urteilTyp:   r[10]?.trim() || 'strafe',
-          begruendung: r[11]?.trim() || '',
-          videoLink1:  r[12]?.trim() || '',
-          videoLink2:  r[13]?.trim() || '',
-          bestrafter:  r[14]?.trim() || '',
-          fahrer: [],
-          anTeams: [],
-        });
+  dokNr:    nr,
+  datum:    r[2]?.trim() || '',
+  uhrzeit:  r[3]?.trim() || '',
+  session:  r[6]?.trim() || '',
+  runde:    r[7]?.trim() || '',
+  vergehen: r[8]?.trim() || '',
+
+  urteile: [],
+
+  fahrer: [],
+  anTeams: [],
+});
       } else {
-        // FIX 2: Folgezeilen desselben Dokuments – Felder überschreiben wenn
-        // sie in dieser Zeile einen Wert haben und bisher leer waren.
-        // So ist es egal, in welcher Zeile die Infos im Sheet stehen.
-        const dok = dokMap.get(nr);
-        if (r[2]?.trim()  && !dok.datum)       dok.datum       = r[2].trim();
-        if (r[3]?.trim()  && !dok.uhrzeit)     dok.uhrzeit     = r[3].trim();
-        if (r[6]?.trim()  && !dok.session)     dok.session     = r[6].trim();
-        if (r[7]?.trim()  && !dok.runde)       dok.runde       = r[7].trim();
-        if (r[8]?.trim()  && !dok.vergehen)    dok.vergehen    = r[8].trim();
-        if (r[9]?.trim()  && !dok.urteilText)  dok.urteilText  = r[9].trim();
-        if (r[10]?.trim() && !dok.urteilTyp || r[10]?.trim() === 'strafe' || r[10]?.trim() === 'streichung' || r[10]?.trim() === 'keine') {
-          if (r[10]?.trim()) dok.urteilTyp = r[10].trim();
-        }
-        if (r[11]?.trim() && !dok.begruendung) dok.begruendung = r[11].trim();
-        if (r[12]?.trim() && !dok.videoLink1)  dok.videoLink1  = r[12].trim();
-        if (r[13]?.trim() && !dok.videoLink2)  dok.videoLink2  = r[13].trim();
-        if (r[14]?.trim() && !dok.bestrafter)  dok.bestrafter  = r[14].trim();
-      }
+    const dok = dokMap.get(nr);
+
+    if (r[2]?.trim() && !dok.datum)
+        dok.datum = r[2].trim();
+
+    if (r[3]?.trim() && !dok.uhrzeit)
+        dok.uhrzeit = r[3].trim();
+
+    if (r[6]?.trim() && !dok.session)
+        dok.session = r[6].trim();
+
+    if (r[7]?.trim() && !dok.runde)
+        dok.runde = r[7].trim();
+
+    if (r[8]?.trim() && !dok.vergehen)
+        dok.vergehen = r[8].trim();
+}
+
+const urteil = {
+    text: r[9]?.trim() || '',
+    typ: r[10]?.trim() || 'strafe',
+    begruendung: r[11]?.trim() || '',
+    videoLink1: r[12]?.trim() || '',
+    videoLink2: r[13]?.trim() || '',
+    bestrafter: r[14]?.trim() || ''
+};
+
+if (
+    urteil.text ||
+    urteil.begruendung ||
+    urteil.videoLink1 ||
+    urteil.videoLink2 ||
+    urteil.bestrafter
+) {
+    dokMap.get(nr).urteile.push(urteil);
+}
 
       const fahrerName = r[4]?.trim();
       const teamName   = r[5]?.trim();
@@ -706,18 +769,40 @@ async function main() {
     }));
 
     const komiteestrafen = [];
-    dokMap.forEach(dok => {
-      const t = dok.urteilTyp.toLowerCase();
-      if (t === 'strafe' || t === 'streichung') {
-        const gekuerzt = kuerzeStrafe(dok.urteilText);
-        if (gekuerzt && dok.bestrafter) {
-          const liste = dok.bestrafter.split(',').map(s => s.trim().toLowerCase());
-          liste.forEach(name => {
-            if (name) komiteestrafen.push({ fahrer: name, strafe: gekuerzt });
-          });
-        }
-      }
+
+dokMap.forEach(dok => {
+
+    dok.urteile.forEach(u => {
+
+        const typ = (u.typ || '').toLowerCase();
+
+        if (typ !== 'strafe' && typ !== 'streichung')
+            return;
+
+        const gekuerzt = kuerzeStrafe(u.text);
+
+        if (!gekuerzt)
+            return;
+
+        if (!u.bestrafter)
+            return;
+
+        u.bestrafter
+            .split(',')
+            .map(s => s.trim().toLowerCase())
+            .filter(Boolean)
+            .forEach(name => {
+
+                komiteestrafen.push({
+                    fahrer: name,
+                    strafe: gekuerzt
+                });
+
+            });
+
     });
+
+});
 
     const letzteNr = [...dokMap.keys()].sort((a, b) => parseInt(a) - parseInt(b)).at(-1) || '0';
     const letzteUhrzeit = dokMap.get(letzteNr)?.uhrzeit || '';
