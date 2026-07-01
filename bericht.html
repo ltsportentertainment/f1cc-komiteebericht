@@ -333,6 +333,7 @@ function fussHTML(einst, dokNr) {
 }
 
 function buildStrafseite(einst, dok, fahrer, qrCounter) {
+const qrIds = [];
 
   const alleTeamsImFall = [...new Set(fahrer.map(f => f.team).filter(Boolean))];
   const anText = dok.an || (alleTeamsImFall.length > 0 ? alleTeamsImFall.join(' & ') : 'Alle Fahrer');
@@ -468,7 +469,11 @@ ${urteileHTML}
   ${fussHTML(einst, dok.dokNr)}
 </div>`;
 
-  return { html, qrIds };
+ return {
+    html,
+    qrIds,
+    qrCounter
+};
 }
 
 function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebnisRows, letztesDokNr, uhrzeit) {
@@ -818,10 +823,11 @@ dokMap.forEach(dok => {
     dokNrs.forEach((nr, i) => {
       const dok = dokMap.get(nr);
       if (i > 0) allHTML += '<div class="seitentrenn"></div>';
-      const { html, qrIds } = buildStrafseite(einst, dok, dok.fahrer, qrCounter);
-      allHTML += html;
-      alleQrIds.push(...qrIds);
-      qrCounter += qrIds.length;
+    const result = buildStrafseite(einst, dok, dok.fahrer, qrCounter);
+
+allHTML += result.html;
+alleQrIds.push(...result.qrIds);
+qrCounter = result.qrCounter;
     });
 
     allHTML += '<div class="seitentrenn"></div>';
