@@ -114,17 +114,15 @@ body {
   font-weight: 700;
   color: #111;
 }
-
-/* ── TRENNLINIE ── */
-.trenn {
-  margin: 18px 28px 0;
-  border: none;
-  border-top: 1px solid #111;
+.an-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 /* ── VORFALL-TABELLE ── */
 .vorfall-table {
-  margin: 14px 28px 0;
+  margin: 18px 28px 0;
 }
 .vorfall-zeile {
   display: flex;
@@ -133,7 +131,6 @@ body {
   border-bottom: 1px solid #f0f0f0;
   align-items: flex-start;
 }
-.vorfall-zeile:last-child { border-bottom: none; }
 .v-label {
   font-size: 12px;
   font-weight: 700;
@@ -265,9 +262,9 @@ body {
 .pos-karte.aufstieg .pk-pfeil { color: #007a3d; }
 .pk-name { font-size: 12px; font-weight: 700; text-transform: uppercase; flex: 1; color: #111; }
 .pk-pos { display: flex; align-items: center; gap: 5px; }
-.pk-von { font-size: 12px; font-weight: 600; color: #aaa; text-decoration: line-through; padding: 1px 5px; background: #f0f0f0; }
-.pk-arrow { font-size: 11px; color: #aaa; }
-.pk-nach { font-size: 14px; font-weight: 900; padding: 1px 6px; }
+.pk-von { font-size: 12px; font-weight: 600; color: #aaa; text-decoration: line-through; padding: 1px 5px; background: #f0f0f0; min-width: 28px; text-align: center; }
+.pk-arrow { font-size: 11px; color: #aaa; min-width: 12px; text-align: center; }
+.pk-nach { font-size: 14px; font-weight: 900; padding: 1px 6px; min-width: 28px; text-align: center; }
 .pos-karte.abstieg  .pk-nach { color: #cc0000; background: #ffe8e8; }
 .pos-karte.aufstieg .pk-nach { color: #007a3d; background: #d8f5e8; }
 
@@ -322,9 +319,9 @@ body {
 .st-spiel      { color: #994400; border: 1px solid #ddaa77; background: #fff5ee; padding: 1px 3px; white-space: nowrap; }
 .st-komitee    { color: #cc0000; border: 1px solid #ffaaaa; background: #ffe8e8; padding: 1px 3px; white-space: nowrap; font-weight: 900; }
 .st-gestrichen { color: #aaa; border: 1px solid #ddd; background: #f5f5f5; padding: 1px 3px; white-space: nowrap; text-decoration: line-through; }
-.st-reduziert  { display: inline-flex; align-items: center; gap: 2px; color: #886600; border: 1px solid #ddcc88; background: #fffbe8; padding: 1px 3px; white-space: nowrap; }
+.st-reduziert  { display: inline-flex; align-items: center; gap: 3px; color: #886600; border: 1px solid #ddcc88; background: #fffbe8; padding: 1px 4px; white-space: nowrap; }
 .st-reduziert .alt { text-decoration: line-through; opacity: 0.5; font-size: 7px; }
-.st-reduziert .neu { font-weight: 900; font-size: 8px; }
+.st-reduziert .neu { font-weight: 900; font-size: 10px; }
 
 .ebadge { display: inline-flex; align-items: center; justify-content: center; font-size: 7px; font-weight: 700; padding: 1px 2px; letter-spacing: 0.3px; text-transform: uppercase; white-space: nowrap; border-radius: 1px; }
 .eb-fl  { color: #5500aa; border: 1px solid #9966cc; background: #f0e8ff; }
@@ -480,19 +477,22 @@ function fussHTML(einst, dokNr) {
 }
 
 function metaHTML(vom, an, dokNr, datum, uhrzeit) {
+  const anListe = Array.isArray(an) ? an : [an];
+  const anHTML = anListe.length > 0
+    ? anListe.map(t => `<span>${t}</span>`).join('')
+    : `<span>Free Agent</span>`;
   return `
   <div class="meta-table">
     <div class="meta-links">
       <div class="meta-zeile"><span class="meta-label">Vom</span><span class="meta-wert">${vom}</span></div>
-      <div class="meta-zeile"><span class="meta-label">An</span><span class="meta-wert fett">${an}</span></div>
+      <div class="meta-zeile"><span class="meta-label">An</span><span class="meta-wert fett an-liste">${anHTML}</span></div>
     </div>
     <div class="meta-rechts">
       <div class="meta-zeile"><span class="meta-label">Dokument</span><span class="meta-wert fett">${dokNr}</span></div>
       <div class="meta-zeile"><span class="meta-label">Datum</span><span class="meta-wert fett">${datum}</span></div>
       <div class="meta-zeile"><span class="meta-label">Uhrzeit</span><span class="meta-wert fett">${uhrzeit}</span></div>
     </div>
-  </div>
-  <hr class="trenn">`;
+  </div>`;
 }
 
 // ── STRAFSEITE ──
@@ -502,7 +502,7 @@ function buildStrafseite(einst, dok, fahrer, qrCounter) {
 
   // "An" aus Team-Namen
   const anTeams = [...new Set(fahrer.map(f => f.team).filter(Boolean))];
-  const anText = dok.an || (anTeams.length > 0 ? anTeams.join(' / ') : 'Free Agent');
+  const anListe = anTeams.length > 0 ? anTeams : (dok.anTeams && dok.anTeams.length > 0 ? dok.anTeams : ['Free Agent']);
 
   // Fahrernamen-Zeilen
   const fahrerZeilen = fahrer.map((f, i) => `
@@ -526,9 +526,11 @@ function buildStrafseite(einst, dok, fahrer, qrCounter) {
   let urteileHTML = '';
   dok.urteile.forEach((u, idx) => {
     urteileHTML += `
-    <div class="vorfall-zeile">
-      <span class="v-label">Urteil</span>
-      <span class="v-wert urteil-text">${u.text || '–'}</span>
+    <div class="vorfall-table">
+      <div class="vorfall-zeile">
+        <span class="v-label">Urteil</span>
+        <span class="v-wert urteil-text">${u.text || '–'}</span>
+      </div>
     </div>`;
 
     urteileHTML += `
@@ -567,7 +569,7 @@ function buildStrafseite(einst, dok, fahrer, qrCounter) {
   const html = `
 <div class="seite">
   ${kopfHTML(einst)}
-  ${metaHTML('Komitee', anText, dok.dokNr, dok.datum, dok.uhrzeit)}
+  ${metaHTML('Komitee', anListe, dok.dokNr, dok.datum, dok.uhrzeit)}
   <div class="vorfall-table">
     ${fahrerZeilen}
     ${teamZeilen}
@@ -822,9 +824,7 @@ async function main() {
       if (teamName && !dokMap.get(nr).anTeams.includes(teamName)) dokMap.get(nr).anTeams.push(teamName);
     });
 
-    dokMap.forEach(dok => {
-      dok.an = dok.anTeams.length > 0 ? dok.anTeams.join(' / ') : 'Free Agent';
-    });
+
 
     // Positionsänderungen
     const pRows = parseCSV(csvPos).slice(1).filter(r => r[0]?.trim());
