@@ -7,194 +7,352 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>F1CC Offizieller Komiteebericht</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-  :root {
-    --rot:       #e10600;
-    --schwarz:   #111111;
-    --dunkelgrau:#333333;
-    --mittelgrau:#666666;
-    --hellgrau:  #999999;
-    --rand:      #cccccc;
-    --hintergrund:#f5f5f5;
-    --weiss:     #ffffff;
-    --s-rot:     #cc0000;
-    --s-grün:    #007a3d;
-    --s-gelb:    #cc8800;
-    --s-orange:  #cc5500;
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #e8e8e8; color: var(--schwarz); font-family: 'Barlow Condensed', sans-serif; }
+body {
+  background: #d0d0d0;
+  font-family: 'Titillium Web', sans-serif;
+  color: #111;
+}
 
-  /* LADESCREEN */
-  #ladescreen {
-    position: fixed; inset: 0; background: #fff;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 16px; z-index: 999;
-  }
-  #ladescreen img { height: 60px; }
-  #lade-text { font-size: 13px; color: var(--mittelgrau); letter-spacing: 3px; text-transform: uppercase; }
-  #lade-fehler { font-size: 12px; color: var(--s-rot); max-width: 400px; text-align: center; display: none; font-family: 'Barlow', sans-serif; }
-  .lade-spinner { width: 32px; height: 32px; border: 3px solid #ddd; border-top-color: var(--rot); border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+/* ── LADESCREEN ── */
+#ladescreen {
+  position: fixed; inset: 0; background: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; z-index: 999;
+}
+#ladescreen img { height: 55px; }
+#lade-text { font-size: 12px; color: #888; letter-spacing: 3px; text-transform: uppercase; }
+#lade-fehler { font-size: 12px; color: #c00; max-width: 400px; text-align: center; display: none; line-height: 1.5; }
+.lade-spinner { width: 28px; height: 28px; border: 3px solid #ddd; border-top-color: #e10600; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  /* SEITE */
-  .seite {
-    width: 210mm; min-height: 297mm; margin: 0 auto 24px;
-    background: var(--weiss);
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-    display: flex; flex-direction: column; overflow: hidden;
-  }
+/* ── SEITE ── */
+.seite {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto 20px;
+  background: #fff;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
 
-  /* KOPF */
-  .kopf {
-    display: grid; grid-template-columns: 120px 1fr 120px;
-    align-items: center; padding: 14px 22px 12px;
-    border-bottom: 3px solid var(--rot);
-    background: var(--weiss);
-  }
-  .kopf-logo img { height: 42px; display: block; }
-  .kopf-mitte { text-align: center; }
-  .kopf-gp   { font-size: 18px; font-weight: 900; letter-spacing: 0.4px; color: var(--schwarz); }
-  .kopf-datum { font-size: 11px; color: var(--mittelgrau); letter-spacing: 2px; margin-top: 1px; }
-  .kopf-partner { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
-  .kopf-partner img:first-child { height: 16px; object-fit: contain; display: block; }
-  .kopf-partner img:last-child  { height: 12px; object-fit: contain; display: block; }
+/* ── KOPF: Logo zentriert, GP-Name darunter, Partner rechts ── */
+.kopf {
+  padding: 22px 28px 0;
+  background: #fff;
+  border-bottom: 2px solid #e10600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+.kopf-partner {
+  position: absolute;
+  top: 22px;
+  right: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+.kopf-partner img { height: 18px; object-fit: contain; }
+.kopf-partner img:last-child { height: 13px; }
 
-  .subband {
-    background: var(--rot); text-align: center; padding: 4px;
-    font-size: 9px; font-weight: 800; letter-spacing: 4px;
-    text-transform: uppercase; margin-bottom: 18px; color: #fff;
-  }
+.kopf-logo { margin-bottom: 10px; }
+.kopf-logo img { height: 50px; display: block; }
+.kopf-gp {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  color: #111;
+  text-align: center;
+}
+.kopf-datum {
+  font-size: 12px;
+  color: #666;
+  letter-spacing: 1px;
+  margin-top: 2px;
+  margin-bottom: 16px;
+  text-align: center;
+}
 
-  /* META */
-  .meta { margin: 0 22px 18px; display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--rand); overflow: hidden; }
-  .meta-links { border-right: 1px solid var(--rand); }
-  .meta-z { display: flex; align-items: baseline; gap: 10px; padding: 7px 13px; border-bottom: 1px solid var(--rand); }
-  .meta-z:last-child { border-bottom: none; }
-  .ml { font-size: 9px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--hellgrau); min-width: 52px; }
-  .mv { font-size: 13px; font-weight: 600; color: var(--dunkelgrau); }
-  .mv.bold { color: var(--schwarz); font-weight: 800; font-size: 14px; }
+/* ── META-TABELLE (Vom / An / Dokument / Datum / Uhrzeit) ── */
+.meta-table {
+  margin: 20px 28px 0;
+  border-top: 1px solid #111;
+  border-bottom: 1px solid #111;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.meta-links { border-right: 1px solid #ddd; padding: 10px 0; }
+.meta-rechts { padding: 10px 0 10px 20px; }
+.meta-zeile {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding: 3px 0;
+}
+.meta-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #111;
+  min-width: 58px;
+}
+.meta-wert {
+  font-size: 12px;
+  color: #333;
+  font-weight: 400;
+}
+.meta-wert.fett {
+  font-weight: 700;
+  color: #111;
+}
 
-  /* ABSCHNITT-TITEL */
-  .at { margin: 0 22px 8px; font-size: 8px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--hellgrau); display: flex; align-items: center; gap: 10px; }
-  .at::after { content: ''; flex: 1; height: 1px; background: var(--rand); }
+/* ── TRENNLINIE ── */
+.trenn {
+  margin: 18px 28px 0;
+  border: none;
+  border-top: 1px solid #111;
+}
 
-  /* DETAIL-TABELLE */
-  .dtab { margin: 0 22px 14px; border: 1px solid var(--rand); overflow: hidden; }
-  .dz { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--rand); min-height: 34px; }
-  .dz:last-child { border-bottom: none; }
-  .dl { padding: 8px 13px; font-size: 9px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--mittelgrau); border-right: 1px solid var(--rand); background: var(--hintergrund); display: flex; align-items: center; }
-  .dv { padding: 8px 13px; font-size: 13px; font-weight: 500; color: var(--dunkelgrau); display: flex; align-items: center; gap: 8px; }
-  .dv.bold { font-size: 14px; font-weight: 800; color: var(--schwarz); }
+/* ── VORFALL-TABELLE ── */
+.vorfall-table {
+  margin: 14px 28px 0;
+}
+.vorfall-zeile {
+  display: flex;
+  gap: 0;
+  padding: 5px 0;
+  border-bottom: 1px solid #f0f0f0;
+  align-items: flex-start;
+}
+.vorfall-zeile:last-child { border-bottom: none; }
+.v-label {
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 90px;
+  color: #111;
+  padding-top: 1px;
+}
+.v-wert {
+  font-size: 12px;
+  color: #333;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.v-wert.urteil-text {
+  font-weight: 700;
+  color: #111;
+  font-size: 13px;
+}
 
-  /* URTEIL */
-  .urteil { margin: 0 22px 14px; padding: 12px 16px; display: flex; align-items: center; gap: 14px; border: 1px solid; }
-  .urteil.strafe     { background: #fff5f5; border-color: #ffbbbb; border-left: 4px solid var(--s-rot); }
-  .urteil.streichung { background: #f0fff5; border-color: #aaddbb; border-left: 4px solid var(--s-grün); }
-  .urteil.keine      { background: var(--hintergrund); border-color: var(--rand); border-left: 4px solid var(--mittelgrau); }
-  .u-icon { font-size: 24px; line-height: 1; }
-  .u-label { font-size: 8px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--hellgrau); margin-bottom: 3px; }
-  .u-text  { font-size: 16px; font-weight: 900; }
-  .urteil.strafe     .u-text { color: var(--s-rot); }
-  .urteil.streichung .u-text { color: var(--s-grün); }
-  .urteil.keine      .u-text { color: var(--mittelgrau); }
+/* ── GRUND ── */
+.grund-block {
+  margin: 14px 28px 0;
+  display: flex;
+  gap: 0;
+  align-items: flex-start;
+}
+.grund-label {
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 90px;
+  color: #111;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+.grund-text {
+  font-size: 12px;
+  color: #333;
+  line-height: 1.6;
+  flex: 1;
+}
 
-  /* TEXTBOX */
-  .textbox { margin: 0 22px 14px; padding: 11px 14px; background: var(--hintergrund); border: 1px solid var(--rand); font-family: 'Barlow', sans-serif; font-size: 12px; color: var(--dunkelgrau); line-height: 1.6; }
+/* ── VIDEOS / QR ── */
+.videos-block {
+  margin: 14px 28px 0;
+  display: flex;
+  gap: 0;
+  align-items: flex-start;
+}
+.videos-label {
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 90px;
+  color: #111;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+.videos-links {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.video-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.qr-box {
+  flex-shrink: 0;
+  width: 64px; height: 64px;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 3px;
+  display: flex; align-items: center; justify-content: center;
+}
+.qr-box canvas, .qr-box img { width: 58px !important; height: 58px !important; }
+.video-link-text {
+  font-size: 11px;
+  color: #0055cc;
+  word-break: break-all;
+  line-height: 1.5;
+  padding-top: 4px;
+}
+.videos-leer { font-size: 12px; color: #999; font-style: italic; }
 
-  /* QR */
-  .qr-outer { margin: 0 22px 14px; display: flex; flex-direction: column; gap: 8px; }
-  .qr-wrap { display: flex; align-items: flex-start; gap: 14px; padding: 11px 14px; background: var(--hintergrund); border: 1px solid var(--rand); }
-  .qr-code-box { flex-shrink: 0; width: 72px; height: 72px; background: #fff; border: 1px solid var(--rand); padding: 4px; display: flex; align-items: center; justify-content: center; }
-  .qr-code-box canvas, .qr-code-box img { width: 64px !important; height: 64px !important; }
-  .qr-text { flex: 1; }
-  .qr-label { font-size: 8px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--hellgrau); margin-bottom: 4px; }
-  .qr-link  { font-size: 11px; color: #0055cc; word-break: break-all; font-family: 'Barlow', sans-serif; line-height: 1.5; }
-  .qr-hint  { font-size: 9px; color: var(--hellgrau); margin-top: 4px; font-family: 'Barlow', sans-serif; }
+/* ── FUSSZEILE ── */
+.fuss {
+  margin-top: auto;
+  padding: 8px 28px;
+  border-top: 1px solid #111;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9px;
+  color: #888;
+  letter-spacing: 0.5px;
+}
+.fuss-mitte { font-weight: 700; color: #555; font-size: 9px; letter-spacing: 1px; }
 
-  /* POSITIONSKARTEN */
-  .pos-karten { margin: 0 22px 14px; display: flex; flex-direction: column; gap: 5px; }
-  .pos-karte { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid; }
-  .pos-karte.abstieg  { background: #fff5f5; border-color: #ffbbbb; border-left: 4px solid var(--s-rot); }
-  .pos-karte.aufstieg { background: #f0fff5; border-color: #aaddbb; border-left: 4px solid var(--s-grün); }
-  .pk-pfeil { font-size: 20px; font-weight: 900; line-height: 1; width: 26px; text-align: center; }
-  .pos-karte.abstieg  .pk-pfeil { color: var(--s-rot); }
-  .pos-karte.aufstieg .pk-pfeil { color: var(--s-grün); }
-  .pk-name { font-size: 14px; font-weight: 900; text-transform: uppercase; flex: 1; color: var(--schwarz); }
-  .pk-pos { display: flex; align-items: center; gap: 6px; }
-  .pk-von { font-size: 15px; font-weight: 700; background: #eee; color: var(--hellgrau); padding: 2px 7px; text-decoration: line-through; text-decoration-color: #aaa; }
-  .pk-arrow { font-size: 12px; color: var(--hellgrau); }
-  .pk-nach { font-size: 17px; font-weight: 900; padding: 2px 7px; }
-  .pos-karte.abstieg  .pk-nach { background: #ffe0e0; color: var(--s-rot); }
-  .pos-karte.aufstieg .pk-nach { background: #d0f0e0; color: var(--s-grün); }
+/* ── SEITENTRENN ── */
+.seitentrenn { width: 210mm; margin: 0 auto; height: 16px; }
 
-  /* ERGEBNISTABELLE */
-  .ergtab { margin: 0 22px 14px; border: 1px solid var(--rand); overflow: hidden; }
-  .erg-cols {
-    display: grid;
-    grid-template-columns: 24px 275px 20px 1fr 20px 28px 24px 24px 24px 56px 24px 44px;
-    align-items: center;
-  }
-  .erg-fahrer-name { font-size: 12px; font-weight: 800; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 4px; color: var(--schwarz); }
-  .erg-team-logo-cell { display: flex; align-items: center; justify-content: flex-start; }
-  .erg-team-logo-cell img { width: 16px; height: 16px; object-fit: contain; }
-  .erg-team-name { font-size: 10px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 3px; color: var(--dunkelgrau); }
-  .erg-head { padding: 7px 10px 7px 13px; background: var(--schwarz); border-bottom: 2px solid var(--rot); font-size: 9px; font-weight: 800; letter-spacing: 1px; color: #fff; text-transform: uppercase; }
-  .erg-row  { padding: 6px 10px 6px 14px; border-bottom: 1px solid #ebebeb; position: relative; background: #fff; }
-  .erg-row:nth-child(even) { background: #fafafa; }
-  .erg-row:last-child { border-bottom: none; }
-  .erg-row.up   { background: #f0fff5 !important; }
-  .erg-row.down { background: #fff5f5 !important; }
-  .erg-row.dnf  { opacity: 0.45; }
-  .estripe { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
-  .ep    { font-size: 12px; font-weight: 700; color: var(--mittelgrau); text-align: center; }
-  .ecell { display: flex; align-items: center; justify-content: center; }
-  .epkt  { font-size: 12px; font-weight: 900; color: var(--schwarz); text-align: right; }
-  .epkt .pl { font-size: 8px; color: var(--hellgrau); font-weight: 700; }
+/* ══════════════════════════════════════════════
+   ERGEBNISSEITE
+══════════════════════════════════════════════ */
 
-  .pos-pfeil { display: inline-block; font-size: 10px; font-weight: 900; padding: 1px 3px; margin-left: 3px; vertical-align: middle; }
-  .pos-pfeil.up   { background: #d0f0e0; color: var(--s-grün); border: 1px solid #aaddbb; }
-  .pos-pfeil.down { background: #ffe0e0; color: var(--s-rot);  border: 1px solid #ffbbbb; }
+/* Positionskarten – kompakter als vorher */
+.pos-karten {
+  margin: 14px 28px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pos-karte {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  border-left: 4px solid #ccc;
+  border-bottom: 1px solid #eee;
+}
+.pos-karte.abstieg  { border-left-color: #cc0000; background: #fff8f8; }
+.pos-karte.aufstieg { border-left-color: #007a3d; background: #f6fff9; }
+.pk-pfeil { font-size: 16px; font-weight: 900; width: 20px; text-align: center; }
+.pos-karte.abstieg  .pk-pfeil { color: #cc0000; }
+.pos-karte.aufstieg .pk-pfeil { color: #007a3d; }
+.pk-name { font-size: 12px; font-weight: 700; text-transform: uppercase; flex: 1; color: #111; }
+.pk-pos { display: flex; align-items: center; gap: 5px; }
+.pk-von { font-size: 12px; font-weight: 600; color: #aaa; text-decoration: line-through; padding: 1px 5px; background: #f0f0f0; }
+.pk-arrow { font-size: 11px; color: #aaa; }
+.pk-nach { font-size: 14px; font-weight: 900; padding: 1px 6px; }
+.pos-karte.abstieg  .pk-nach { color: #cc0000; background: #ffe8e8; }
+.pos-karte.aufstieg .pk-nach { color: #007a3d; background: #d8f5e8; }
 
-  .strafen-cell { display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; padding: 0 2px; }
-  .st-spiel      { color: var(--s-orange); border: 1px solid #ddaa88; background: #fff5ee; border-radius: 2px; padding: 1px 4px; white-space: nowrap; }
-  .st-komitee    { color: var(--s-rot); border: 1px solid #ffaaaa; background: #ffe8e8; border-radius: 2px; padding: 1px 4px; white-space: nowrap; font-weight: 900; }
-  .st-gestrichen { color: var(--hellgrau); border: 1px solid #ddd; background: #f5f5f5; border-radius: 2px; padding: 1px 4px; white-space: nowrap; text-decoration: line-through; }
-  .st-reduziert  { display: inline-flex; align-items: center; gap: 3px; color: var(--s-gelb); border: 1px solid #ddcc88; background: #fffbe8; border-radius: 2px; padding: 1px 4px; white-space: nowrap; }
-  .st-reduziert .alt { text-decoration: line-through; opacity: 0.5; font-size: 8px; }
-  .st-reduziert .neu { font-weight: 900; font-size: 9px; }
+/* Ergebnistabelle */
+.erg-titel {
+  margin: 16px 28px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #111;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-bottom: 2px solid #e10600;
+  padding-bottom: 4px;
+}
+.ergtab { margin: 0 28px; border: 1px solid #ddd; overflow: hidden; }
+.erg-cols {
+  display: grid;
+  grid-template-columns: 26px 275px 20px 1fr 22px 28px 22px 22px 22px 54px 22px 44px;
+  align-items: center;
+}
+.erg-head {
+  padding: 6px 8px 6px 12px;
+  background: #111;
+  font-size: 8px; font-weight: 700; letter-spacing: 1px;
+  color: #fff; text-transform: uppercase;
+}
+.erg-row {
+  padding: 5px 8px 5px 13px;
+  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+}
+.erg-row:nth-child(even) { background: #fafafa; }
+.erg-row:last-child { border-bottom: none; }
+.erg-row.up   { background: #f2fdf6 !important; }
+.erg-row.down { background: #fff4f4 !important; }
+.erg-row.dnf  { opacity: 0.4; }
+.estripe { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.ep { font-size: 11px; font-weight: 700; color: #888; text-align: center; }
+.erg-fahrer-name { font-size: 11px; font-weight: 700; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 4px; color: #111; }
+.erg-team-logo-cell { display: flex; align-items: center; justify-content: flex-start; }
+.erg-team-logo-cell img { width: 14px; height: 14px; object-fit: contain; }
+.erg-team-name { font-size: 9px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-left: 3px; color: #555; }
+.ecell { display: flex; align-items: center; justify-content: center; }
+.epkt  { font-size: 11px; font-weight: 700; color: #111; text-align: right; }
+.epkt .pl { font-size: 7px; color: #aaa; font-weight: 600; }
 
-  .ebadge { display: inline-flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 900; padding: 1px 3px; border-radius: 2px; letter-spacing: 0.3px; text-transform: uppercase; white-space: nowrap; }
-  .eb-fl  { color: #6600cc; border: 1px solid #9966dd; background: #f0e8ff; }
-  .eb-ts  { color: #6600cc; border: 1px solid #9966dd; background: #f0e8ff; }
-  .eb-fdt { color: #0055aa; border: 1px solid #88aadd; background: #e8f0ff; }
-  .eb-müm { color: #886600; border: 1px solid #ccaa44; background: #fffbe0; }
-  .eb-sbf { color: #007733; border: 1px solid #66bb88; background: #e8fff0; }
-  .eb-dnf { color: var(--s-rot); border: 1px solid #ffaaaa; background: #ffe8e8; }
+.pos-pfeil { display: inline-block; font-size: 9px; font-weight: 700; padding: 0px 2px; margin-left: 2px; vertical-align: middle; border-radius: 1px; }
+.pos-pfeil.up   { color: #007a3d; background: #d8f5e8; border: 1px solid #aaddbb; }
+.pos-pfeil.down { color: #cc0000; background: #ffe8e8; border: 1px solid #ffbbbb; }
 
-  /* EINSPRUCH */
-  .einspruch { margin: 0 22px 14px; padding: 10px 14px; background: #fffbe8; border: 1px solid #ddcc88; border-left: 3px solid var(--s-gelb); font-size: 11px; font-family: 'Barlow', sans-serif; color: var(--dunkelgrau); line-height: 1.6; }
-  .einspruch strong { color: var(--schwarz); }
+.strafen-cell { display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; padding: 0 2px; }
+.st-spiel      { color: #994400; border: 1px solid #ddaa77; background: #fff5ee; padding: 1px 3px; white-space: nowrap; }
+.st-komitee    { color: #cc0000; border: 1px solid #ffaaaa; background: #ffe8e8; padding: 1px 3px; white-space: nowrap; font-weight: 900; }
+.st-gestrichen { color: #aaa; border: 1px solid #ddd; background: #f5f5f5; padding: 1px 3px; white-space: nowrap; text-decoration: line-through; }
+.st-reduziert  { display: inline-flex; align-items: center; gap: 2px; color: #886600; border: 1px solid #ddcc88; background: #fffbe8; padding: 1px 3px; white-space: nowrap; }
+.st-reduziert .alt { text-decoration: line-through; opacity: 0.5; font-size: 7px; }
+.st-reduziert .neu { font-weight: 900; font-size: 8px; }
 
-  /* FUSS */
-  .fuss { margin-top: auto; padding: 9px 22px; border-top: 2px solid var(--rot); display: flex; justify-content: space-between; align-items: center; font-size: 9px; color: var(--hellgrau); letter-spacing: 1px; background: var(--weiss); }
-  .fuss-dok { font-size: 9px; font-weight: 800; color: var(--mittelgrau); letter-spacing: 2px; }
+.ebadge { display: inline-flex; align-items: center; justify-content: center; font-size: 7px; font-weight: 700; padding: 1px 2px; letter-spacing: 0.3px; text-transform: uppercase; white-space: nowrap; border-radius: 1px; }
+.eb-fl  { color: #5500aa; border: 1px solid #9966cc; background: #f0e8ff; }
+.eb-ts  { color: #5500aa; border: 1px solid #9966cc; background: #f0e8ff; }
+.eb-fdt { color: #003388; border: 1px solid #7799cc; background: #e8f0ff; }
+.eb-müm { color: #775500; border: 1px solid #bbaa55; background: #fffbe0; }
+.eb-sbf { color: #005522; border: 1px solid #55aa77; background: #e8fff0; }
+.eb-dnf { color: #cc0000; border: 1px solid #ffaaaa; background: #ffe8e8; }
 
-  .seitentrenn { width: 210mm; margin: 0 auto; height: 16px; }
+/* Einspruch */
+.einspruch-block {
+  margin: 12px 28px 0;
+  font-size: 11px;
+  color: #333;
+  line-height: 1.6;
+}
+.einspruch-block strong { color: #111; }
 
-  @media print {
-    @page { size: A4; margin: 0; }
-    body { background: #fff !important; }
-    #ladescreen { display: none !important; }
-    .seite { width: 210mm; min-height: 297mm; height: 297mm; margin: 0; page-break-after: always; break-after: page; box-shadow: none; border: none; }
-    .seite:last-child { page-break-after: auto; break-after: auto; }
-    .seitentrenn { display: none; }
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  }
+/* PRINT */
+@media print {
+  @page { size: A4; margin: 0; }
+  body { background: #fff !important; }
+  #ladescreen { display: none !important; }
+  .seite { width: 210mm; min-height: 297mm; height: 297mm; margin: 0; page-break-after: always; break-after: page; box-shadow: none; }
+  .seite:last-child { page-break-after: auto; break-after: auto; }
+  .seitentrenn { display: none; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
 </style>
 </head>
 <body>
@@ -297,194 +455,160 @@ function parseCSV(text) {
   });
 }
 
+// ── HTML-BAUSTEINE ──
+
 function kopfHTML(einst) {
   return `
   <div class="kopf">
-    <div class="kopf-logo"><img src="https://i.postimg.cc/5NS201WB/image.png" alt="F1CC"></div>
-    <div class="kopf-mitte">
-      <div class="kopf-gp">${einst.flagge} ${einst.gpName}</div>
-      <div class="kopf-datum">${einst.renndatum}</div>
-    </div>
     <div class="kopf-partner">
       <img src="https://i.postimg.cc/tgMHZSk4/EA-Logo.png" alt="EA">
       <img src="https://i.postimg.cc/x8VDLszj/FSL-Logo.png" alt="FSL">
     </div>
-  </div>
-  <div class="subband">Offizieller Komiteebericht</div>`;
+    <div class="kopf-logo"><img src="https://i.postimg.cc/5NS201WB/image.png" alt="F1CC"></div>
+    <div class="kopf-gp">${einst.flagge} ${einst.gpName}</div>
+    <div class="kopf-datum">${einst.renndatum}</div>
+  </div>`;
 }
 
 function fussHTML(einst, dokNr) {
   return `
   <div class="fuss">
     <span>F1CC – Offizieller Komiteebericht</span>
-    <span class="fuss-dok">DOK. ${dokNr} / ${einst.gpName} ${new Date().getFullYear()}</span>
-    <span>Saisonrennen Nr. ${einst.rennnummer}</span>
+    <span class="fuss-mitte">DOKUMENT ${dokNr} · SAISONRENNEN NR. ${einst.rennnummer}</span>
+    <span>${einst.gpName} ${new Date().getFullYear()}</span>
   </div>`;
 }
 
+function metaHTML(vom, an, dokNr, datum, uhrzeit) {
+  return `
+  <div class="meta-table">
+    <div class="meta-links">
+      <div class="meta-zeile"><span class="meta-label">Vom</span><span class="meta-wert">${vom}</span></div>
+      <div class="meta-zeile"><span class="meta-label">An</span><span class="meta-wert fett">${an}</span></div>
+    </div>
+    <div class="meta-rechts">
+      <div class="meta-zeile"><span class="meta-label">Dokument</span><span class="meta-wert fett">${dokNr}</span></div>
+      <div class="meta-zeile"><span class="meta-label">Datum</span><span class="meta-wert fett">${datum}</span></div>
+      <div class="meta-zeile"><span class="meta-label">Uhrzeit</span><span class="meta-wert fett">${uhrzeit}</span></div>
+    </div>
+  </div>
+  <hr class="trenn">`;
+}
+
+// ── STRAFSEITE ──
+
 function buildStrafseite(einst, dok, fahrer, qrCounter) {
-const qrIds = [];
+  const qrIds = [];
 
-  const alleTeamsImFall = [...new Set(fahrer.map(f => f.team).filter(Boolean))];
-  const anText = dok.an || (alleTeamsImFall.length > 0 ? alleTeamsImFall.join(' & ') : 'Alle Fahrer');
+  // "An" aus Team-Namen
+  const anTeams = [...new Set(fahrer.map(f => f.team).filter(Boolean))];
+  const anText = dok.an || (anTeams.length > 0 ? anTeams.join(' / ') : 'Free Agent');
 
-  const fahrerNamen = fahrer.map((f, i) => `
-    <div class="dz">
-      <div class="dl">${i === 0 ? 'Fahrer' : ''}</div>
-      <div class="dv bold">${f.fahrer}</div>
+  // Fahrernamen-Zeilen
+  const fahrerZeilen = fahrer.map((f, i) => `
+    <div class="vorfall-zeile">
+      <span class="v-label">${i === 0 ? 'Fahrer' : ''}</span>
+      <span class="v-wert">${f.fahrer}</span>
     </div>`).join('');
 
+  // Team-Zeilen (ohne Teamfarbe, nur Logo + Name)
   const teamZeilen = fahrer.map((f, i) => {
     const team = getTeam(f.team);
-    const teamHTML = team
-      ? `<img src="${team.logo}" style="width:18px;height:18px;object-fit:contain"><span style="color:${team.f};font-weight:700">${f.team}</span>`
-      : `<span style="color:#787f84">${f.team || '–'}</span>`;
+    const logoHTML = team ? `<img src="${team.logo}" style="width:16px;height:16px;object-fit:contain">` : '';
     return `
-    <div class="dz">
-      <div class="dl">${i === 0 ? 'Team' : ''}</div>
-      <div class="dv">${teamHTML}</div>
+    <div class="vorfall-zeile">
+      <span class="v-label">${i === 0 ? 'Team' : ''}</span>
+      <span class="v-wert">${logoHTML}${f.team || 'Free Agent'}</span>
     </div>`;
   }).join('');
 
+  // Urteil-Blöcke
   let urteileHTML = '';
-
-dok.urteile.forEach((u, index) => {
-
-    const typ = (u.typ || 'strafe').toLowerCase();
-
-    const icon =
-        typ === 'strafe'
-            ? '⚠️'
-            : typ === 'streichung'
-                ? '✅'
-                : 'ℹ️';
+  dok.urteile.forEach((u, idx) => {
+    urteileHTML += `
+    <div class="vorfall-zeile">
+      <span class="v-label">Urteil</span>
+      <span class="v-wert urteil-text">${u.text || '–'}</span>
+    </div>`;
 
     urteileHTML += `
-        <div class="at">
-            Urteil${dok.urteile.length > 1 ? ` ${index + 1}` : ''}
-        </div>
+    <div class="grund-block">
+      <span class="grund-label">Grund</span>
+      <span class="grund-text">${u.begruendung || '–'}</span>
+    </div>`;
 
-        <div class="urteil ${typ}">
-            <div class="u-icon">${icon}</div>
-            <div>
-                <div class="u-label">Entscheidung des Komitees</div>
-                <div class="u-text">${u.text || '–'}</div>
-            </div>
-        </div>
-
-        <div class="at">Begründung</div>
-        <div class="textbox">
-            ${u.begruendung || '–'}
-        </div>
-    `;
-
+    // Videos / QR
     const links = [u.videoLink1, u.videoLink2].filter(Boolean);
-
-    if (links.length) {
-
-        urteileHTML += `<div class="at">Beweise / Videos</div><div class="qr-outer">`;
-
-        links.forEach((link, i) => {
-
-            const qrId = `qr${qrCounter++}`;
-
-            qrIds.push({
-                id: qrId,
-                url: link
-            });
-
-            urteileHTML += `
-                <div class="qr-wrap">
-
-                    <div class="qr-code-box" id="${qrId}"></div>
-
-                    <div class="qr-text">
-
-                        <div class="qr-label">
-                            Video-Beweis ${i + 1}
-                        </div>
-
-                        <div class="qr-link">
-                            ${link}
-                        </div>
-
-                        <div class="qr-hint">
-                            QR-Code scannen um Video zu öffnen
-                        </div>
-
-                    </div>
-
-                </div>
-            `;
-        });
-
-        urteileHTML += `</div>`;
-
+    if (links.length > 0) {
+      let linksHTML = '';
+      links.forEach((link, i) => {
+        const qrId = `qr${qrCounter++}`;
+        qrIds.push({ id: qrId, url: link });
+        linksHTML += `
+        <div class="video-item">
+          <div class="qr-box" id="${qrId}"></div>
+          <div class="video-link-text">${link}</div>
+        </div>`;
+      });
+      urteileHTML += `
+    <div class="videos-block">
+      <span class="videos-label">Videos</span>
+      <div class="videos-links">${linksHTML}</div>
+    </div>`;
     } else {
-
-        urteileHTML += `
-            <div class="at">Beweise / Videos</div>
-            <div class="textbox" style="color:#444;font-style:italic">
-                Keine Beweise eingereicht
-            </div>
-        `;
+      urteileHTML += `
+    <div class="videos-block">
+      <span class="videos-label">Videos</span>
+      <div class="videos-links"><span class="videos-leer">–</span></div>
+    </div>`;
     }
+  });
 
-});
   const html = `
 <div class="seite">
   ${kopfHTML(einst)}
-  <div class="meta">
-    <div class="meta-links">
-      <div class="meta-z"><span class="ml">Vom</span><span class="mv">Komitee</span></div>
-      <div class="meta-z"><span class="ml">An</span><span class="mv bold">${anText}</span></div>
-    </div>
-    <div class="meta-rechts">
-      <div class="meta-z"><span class="ml">Dokument</span><span class="mv bold">${dok.dokNr}</span></div>
-      <div class="meta-z"><span class="ml">Datum</span><span class="mv">${dok.datum}</span></div>
-      <div class="meta-z"><span class="ml">Uhrzeit</span><span class="mv">${dok.uhrzeit}</span></div>
-    </div>
-  </div>
-
-  <div class="at">Vorfall</div>
-  <div class="dtab">
-    ${fahrerNamen}
+  ${metaHTML('Komitee', anText, dok.dokNr, dok.datum, dok.uhrzeit)}
+  <div class="vorfall-table">
+    ${fahrerZeilen}
     ${teamZeilen}
-    <div class="dz"><div class="dl">Session</div><div class="dv">${dok.session || '–'}</div></div>
-    <div class="dz"><div class="dl">Runde</div><div class="dv">${dok.runde || '–'}</div></div>
-    <div class="dz"><div class="dl">Vergehen</div><div class="dv">${dok.vergehen || '–'}</div></div>
+    <div class="vorfall-zeile">
+      <span class="v-label">Session</span>
+      <span class="v-wert">${dok.session || '–'}</span>
+    </div>
+    <div class="vorfall-zeile">
+      <span class="v-label">Runde</span>
+      <span class="v-wert">${dok.runde || '–'}</span>
+    </div>
+    <div class="vorfall-zeile">
+      <span class="v-label">Vergehen</span>
+      <span class="v-wert">${dok.vergehen || '–'}</span>
+    </div>
   </div>
-
-${urteileHTML}
+  ${urteileHTML}
   ${fussHTML(einst, dok.dokNr)}
 </div>`;
 
- return {
-    html,
-    qrIds,
-    qrCounter
-};
+  return { html, qrIds, qrCounter };
 }
 
-function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebnisRows, letztesDokNr, uhrzeit) {
+// ── ERGEBNISSEITE ──
 
+function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebnisRows, letztesDokNr, uhrzeit) {
   const dokNr = parseInt(letztesDokNr) + 1;
 
-  const metaHTML = `
-  <div class="meta">
-    <div class="meta-links">
-      <div class="meta-z"><span class="ml">Vom</span><span class="mv">Komitee</span></div>
-      <div class="meta-z"><span class="ml">An</span><span class="mv bold">Alle Fahrer</span></div>
-    </div>
-    <div class="meta-rechts">
-      <div class="meta-z"><span class="ml">Dokument</span><span class="mv bold">${dokNr}</span></div>
-      <div class="meta-z"><span class="ml">Datum</span><span class="mv">${einst.berichtDatum}</span></div>
-      <div class="meta-z"><span class="ml">Uhrzeit</span><span class="mv">${uhrzeit}</span></div>
-    </div>
-  </div>`;
+  const posUpMap = {}, posDownMap = {};
+  posAend.forEach(p => {
+    const key = p.fahrer.trim().toLowerCase();
+    if (p.typ === 'aufstieg') posUpMap[key] = true;
+    if (p.typ === 'abstieg')  posDownMap[key] = true;
+  });
+  const komMap = {};
+  komiteestrafen.forEach(k => { komMap[k.fahrer.toLowerCase()] = k.strafe; });
+  const spielMap = {};
+  spielstrafen.forEach(s => { spielMap[s.fahrer.toLowerCase()] = s; });
 
+  // Positionskarten
   const posKartenHTML = posAend.length > 0 ? `
-  <div class="at">Positionsänderungen durch Komitee</div>
   <div class="pos-karten">
     ${posAend.map(p => `
     <div class="pos-karte ${p.typ}">
@@ -498,37 +622,18 @@ function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebn
     </div>`).join('')}
   </div>` : '';
 
-  const komMap = {};
-  komiteestrafen.forEach(k => { komMap[k.fahrer.toLowerCase()] = k.strafe; });
-  console.log('komMap:', komMap);
-
-  const posUpMap = {}, posDownMap = {};
-  posAend.forEach(p => {
-    const key = p.fahrer.trim().toLowerCase();
-    if (p.typ === 'aufstieg') posUpMap[key] = true;
-    if (p.typ === 'abstieg')  posDownMap[key] = true;
-  });
-  const spielMap = {};
-  spielstrafen.forEach(s => { spielMap[s.fahrer.toLowerCase()] = s; });
-
+  // Ergebnistabelle
   const ergZeilen = ergebnisRows.map(row => {
     const fname  = row.fahrer || '';
     const fkey   = fname.toLowerCase();
-    const farbe  = FAHRER_FARBEN[fkey] || '#787f84';
+    const farbe  = FAHRER_FARBEN[fkey] || '#888888';
     const isUp   = !!posUpMap[fkey];
     const isDown = !!posDownMap[fkey];
     const isDNF  = !!(row.dnf && row.dnf.trim());
     const rowCls = isDNF ? 'dnf' : isUp ? 'up' : isDown ? 'down' : '';
-
-    // FIX 1: Roter Pfeil für absteigende Fahrer wird jetzt korrekt gerendert
-    const pfeil = isUp
-      ? `<span class="pos-pfeil up">↑</span>`
-      : isDown
-        ? `<span class="pos-pfeil down">↓</span>`
-        : '';
+    const pfeil  = isUp ? `<span class="pos-pfeil up">↑</span>` : isDown ? `<span class="pos-pfeil down">↓</span>` : '';
 
     const teamObj      = getTeam(row.team);
-    const teamColor    = teamObj ? teamObj.f : '#787f84';
     const teamLogoHTML = teamObj ? `<img src="${teamObj.logo}" alt="">` : '';
 
     const kom = komMap[fkey];
@@ -540,41 +645,34 @@ function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebn
       else if (sp.status === 'reduziert') parts.push(`<span class="st-reduziert"><span class="alt">${sp.strafe}</span><span class="neu">${sp.neu}</span></span>`);
       else parts.push(`<span class="st-spiel">${sp.strafe}</span>`);
     }
-    const strafenInner = parts.length ? parts.join('&nbsp;') : '<span style="color:#333">–</span>';
-
-    const flBadge  = row.fl  ? `<span class="ebadge eb-fl">FL</span>`       : '';
-    const tsBadge  = row.ts  ? `<span class="ebadge eb-ts">${row.ts}</span>`: '';
-    const fdtBadge = row.fdt ? `<span class="ebadge eb-fdt">FDT</span>`     : '';
-    const müBadge  = row.müm ? `<span class="ebadge eb-müm">MÜM</span>`     : '';
-    const sbfBadge = row.sbf ? `<span class="ebadge eb-sbf">SBF</span>`     : '';
-    const dnfBadge = isDNF   ? `<span class="ebadge eb-dnf">DNF</span>`     : '';
+    const strafenInner = parts.length ? parts.join('&nbsp;') : `<span style="color:#ddd">–</span>`;
 
     return `
-    <div class="erg-cols erg-row ${rowCls}" style="padding-left:14px">
+    <div class="erg-cols erg-row ${rowCls}" style="padding-left:13px">
       <div class="estripe" style="background:${farbe}"></div>
       <div class="ep">${row.pos}</div>
       <div class="erg-fahrer-name">${fname}${pfeil}</div>
       <div class="erg-team-logo-cell">${teamLogoHTML ? `<img src="${teamObj.logo}" alt="">` : ''}</div>
       <div class="erg-team-name">${row.team || 'Free Agent'}</div>
-      <div class="ecell">${flBadge}</div>
-      <div class="ecell">${tsBadge}</div>
-      <div class="ecell">${fdtBadge}</div>
-      <div class="ecell">${müBadge}</div>
-      <div class="ecell">${sbfBadge}</div>
+      <div class="ecell">${row.fl  ? `<span class="ebadge eb-fl">FL</span>`       : ''}</div>
+      <div class="ecell">${row.ts  ? `<span class="ebadge eb-ts">${row.ts}</span>`: ''}</div>
+      <div class="ecell">${row.fdt ? `<span class="ebadge eb-fdt">FDT</span>`     : ''}</div>
+      <div class="ecell">${row.müm ? `<span class="ebadge eb-müm">MÜM</span>`     : ''}</div>
+      <div class="ecell">${row.sbf ? `<span class="ebadge eb-sbf">SBF</span>`     : ''}</div>
       <div class="strafen-cell">${strafenInner}</div>
-      <div class="ecell">${dnfBadge}</div>
+      <div class="ecell">${isDNF  ? `<span class="ebadge eb-dnf">DNF</span>`     : ''}</div>
       <div class="epkt">${row.gesPkt} <span class="pl">PKT</span></div>
     </div>`;
   }).join('');
 
-  const ergebnisTabHTML = `
-  <div class="at">Endgültiges Rennergebnis</div>
+  const tabHTML = `
+  <div class="erg-titel">Rennergebnis</div>
   <div class="ergtab">
     <div class="erg-cols erg-head">
       <div style="text-align:center">P</div>
       <div style="padding-left:4px">Fahrer</div>
       <div></div>
-      <div style="padding-left:3px">Team</div>
+      <div>Team</div>
       <div style="text-align:center">FL</div>
       <div style="text-align:center">TS</div>
       <div style="text-align:center">FDT</div>
@@ -588,24 +686,25 @@ function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebn
   </div>`;
 
   const einspruchHTML = `
-  <div class="einspruch">
+  <div class="einspruch-block">
     Wenn es <strong>signifikante, neue Beweise/Beispiele</strong> gibt, darf gegen dieses Rennergebnis
     bis zum <strong>${einst.einspruchsfrist} 23:59 Uhr</strong> Einspruch eingelegt werden.
     Diese dürfen nur auf Grundlage von aktuell verfügbaren Regelwerken getätigt werden.
   </div>`;
 
-  if (posAend.length >= 4) {
+  // Ab 3 Positionsänderungen: Ergebnis auf eigene Seite
+  if (posAend.length >= 3) {
     return `
 <div class="seite">
   ${kopfHTML(einst)}
-  ${metaHTML}
+  ${metaHTML('Komitee', 'Fahrer', dokNr, einst.berichtDatum, uhrzeit)}
   ${posKartenHTML}
   ${fussHTML(einst, dokNr)}
 </div>
 <div class="seitentrenn"></div>
 <div class="seite">
   ${kopfHTML(einst)}
-  ${ergebnisTabHTML}
+  ${tabHTML}
   ${einspruchHTML}
   ${fussHTML(einst, dokNr)}
 </div>`;
@@ -614,20 +713,21 @@ function buildErgebnisseite(einst, posAend, spielstrafen, komiteestrafen, ergebn
   return `
 <div class="seite">
   ${kopfHTML(einst)}
-  ${metaHTML}
+  ${metaHTML('Komitee', 'Fahrer', dokNr, einst.berichtDatum, uhrzeit)}
   ${posKartenHTML}
-  ${ergebnisTabHTML}
+  ${tabHTML}
   ${einspruchHTML}
   ${fussHTML(einst, dokNr)}
 </div>`;
 }
+
+// ── PARSEN ──
 
 function parseErgebnisse(csv, rennnummer) {
   const rows = parseCSV(csv).slice(1);
   const nr = parseInt(rennnummer);
   const startIdx = (nr - 1) * 36 + 10;
   const block = rows.slice(startIdx, startIdx + 22);
-
   const ergebnisse = [];
   block.forEach((r, i) => {
     const fahrer = (r[10] || '').trim();
@@ -648,6 +748,8 @@ function parseErgebnisse(csv, rennnummer) {
   return ergebnisse;
 }
 
+// ── MAIN ──
+
 async function main() {
   const ladeText   = document.getElementById('lade-text');
   const ladeFehler = document.getElementById('lade-fehler');
@@ -664,90 +766,67 @@ async function main() {
 
     ladeText.textContent = 'Verarbeiten …';
 
+    // Einstellungen
     const eRows = parseCSV(csvEinst).slice(1);
     const einst = {
-      rennnummer:          (eRows[0]?.[1] || '').trim(),
-      gpName:              (eRows[1]?.[1] || '').trim(),
-      flagge:              (eRows[2]?.[1] || '').trim(),
-      renndatum:           (eRows[3]?.[1] || '').trim(),
-      einspruchsfrist:     (eRows[4]?.[1] || '').trim(),
-      berichtDatum:        (eRows[5]?.[1] || '').trim(),
-      ergebnisDokUhrzeit:  (eRows[6]?.[1] || '').trim(),
+      rennnummer:      (eRows[0]?.[1] || '').trim(),
+      gpName:          (eRows[1]?.[1] || '').trim(),
+      flagge:          (eRows[2]?.[1] || '').trim(),
+      renndatum:       (eRows[3]?.[1] || '').trim(),
+      einspruchsfrist: (eRows[4]?.[1] || '').trim(),
+      berichtDatum:    (eRows[5]?.[1] || '').trim(),
     };
 
+    // Fälle
     const fRows = parseCSV(csvFaelle).slice(1).filter(r => r[0]?.trim());
     const dokMap = new Map();
 
     fRows.forEach(r => {
       const nr = r[0].trim();
-
       if (!dokMap.has(nr)) {
-        // Erste Zeile dieses Dokuments: Objekt anlegen
         dokMap.set(nr, {
-  dokNr:    nr,
-  datum:    r[2]?.trim() || '',
-  uhrzeit:  r[3]?.trim() || '',
-  session:  r[6]?.trim() || '',
-  runde:    r[7]?.trim() || '',
-  vergehen: r[8]?.trim() || '',
-
-  urteile: [],
-
-  fahrer: [],
-  anTeams: [],
-});
+          dokNr:    nr,
+          datum:    r[2]?.trim() || '',
+          uhrzeit:  r[3]?.trim() || '',
+          session:  r[6]?.trim() || '',
+          runde:    r[7]?.trim() || '',
+          vergehen: r[8]?.trim() || '',
+          urteile:  [],
+          fahrer:   [],
+          anTeams:  [],
+        });
       } else {
-    const dok = dokMap.get(nr);
+        const d = dokMap.get(nr);
+        if (r[2]?.trim() && !d.datum)   d.datum   = r[2].trim();
+        if (r[3]?.trim() && !d.uhrzeit) d.uhrzeit = r[3].trim();
+        if (r[6]?.trim() && !d.session) d.session = r[6].trim();
+        if (r[7]?.trim() && !d.runde)   d.runde   = r[7].trim();
+        if (r[8]?.trim() && !d.vergehen)d.vergehen= r[8].trim();
+      }
 
-    if (r[2]?.trim() && !dok.datum)
-        dok.datum = r[2].trim();
-
-    if (r[3]?.trim() && !dok.uhrzeit)
-        dok.uhrzeit = r[3].trim();
-
-    if (r[6]?.trim() && !dok.session)
-        dok.session = r[6].trim();
-
-    if (r[7]?.trim() && !dok.runde)
-        dok.runde = r[7].trim();
-
-    if (r[8]?.trim() && !dok.vergehen)
-        dok.vergehen = r[8].trim();
-}
-
-const urteil = {
-    text: r[9]?.trim() || '',
-    typ: r[10]?.trim() || 'strafe',
-    begruendung: r[11]?.trim() || '',
-    videoLink1: r[12]?.trim() || '',
-    videoLink2: r[13]?.trim() || '',
-    bestrafter: r[14]?.trim() || ''
-};
-
-if (
-    urteil.text ||
-    urteil.begruendung ||
-    urteil.videoLink1 ||
-    urteil.videoLink2 ||
-    urteil.bestrafter
-) {
-    dokMap.get(nr).urteile.push(urteil);
-}
+      const urteil = {
+        text:        r[9]?.trim()  || '',
+        typ:         r[10]?.trim() || 'strafe',
+        begruendung: r[11]?.trim() || '',
+        videoLink1:  r[12]?.trim() || '',
+        videoLink2:  r[13]?.trim() || '',
+        bestrafter:  r[14]?.trim() || '',
+      };
+      if (urteil.text || urteil.begruendung || urteil.videoLink1 || urteil.bestrafter) {
+        dokMap.get(nr).urteile.push(urteil);
+      }
 
       const fahrerName = r[4]?.trim();
       const teamName   = r[5]?.trim();
-      if (fahrerName) {
-        dokMap.get(nr).fahrer.push({ fahrer: fahrerName, team: teamName || '' });
-      }
-      if (teamName && !dokMap.get(nr).anTeams.includes(teamName)) {
-        dokMap.get(nr).anTeams.push(teamName);
-      }
+      if (fahrerName) dokMap.get(nr).fahrer.push({ fahrer: fahrerName, team: teamName || '' });
+      if (teamName && !dokMap.get(nr).anTeams.includes(teamName)) dokMap.get(nr).anTeams.push(teamName);
     });
 
     dokMap.forEach(dok => {
-      dok.an = dok.anTeams.length > 0 ? dok.anTeams.join('<br>') : 'Alle Fahrer';
+      dok.an = dok.anTeams.length > 0 ? dok.anTeams.join(' / ') : 'Free Agent';
     });
 
+    // Positionsänderungen
     const pRows = parseCSV(csvPos).slice(1).filter(r => r[0]?.trim());
     const posAend = pRows.map(r => ({
       fahrer: r[0].trim(),
@@ -756,6 +835,7 @@ if (
       typ:    r[3].trim().toLowerCase(),
     }));
 
+    // Spielstrafen
     const sRows = parseCSV(csvSpiel).slice(1).filter(r => r[0]?.trim());
     const spielstrafen = sRows.map(r => ({
       fahrer: r[0].trim(),
@@ -764,46 +844,23 @@ if (
       neu:    r[3]?.trim() || '',
     }));
 
+    // Komiteestrafen
     const komiteestrafen = [];
-
-dokMap.forEach(dok => {
-
-    dok.urteile.forEach(u => {
-
+    dokMap.forEach(dok => {
+      dok.urteile.forEach(u => {
         const typ = (u.typ || '').toLowerCase();
-
-        if (typ !== 'strafe' && typ !== 'streichung')
-            return;
-
+        if (typ !== 'strafe' && typ !== 'streichung') return;
         const gekuerzt = kuerzeStrafe(u.text);
-
-        if (!gekuerzt)
-            return;
-
-        if (!u.bestrafter)
-            return;
-
-        u.bestrafter
-            .split(',')
-            .map(s => s.trim().toLowerCase())
-            .filter(Boolean)
-            .forEach(name => {
-
-                komiteestrafen.push({
-                    fahrer: name,
-                    strafe: gekuerzt
-                });
-
-            });
-
+        if (!gekuerzt || !u.bestrafter) return;
+        u.bestrafter.split(',').map(s => s.trim().toLowerCase()).filter(Boolean).forEach(name => {
+          komiteestrafen.push({ fahrer: name, strafe: gekuerzt });
+        });
+      });
     });
 
-});
-
-    const letzteNr = [...dokMap.keys()].sort((a, b) => parseInt(a) - parseInt(b)).at(-1) || '0';
+    const letzteNr      = [...dokMap.keys()].sort((a, b) => parseInt(a) - parseInt(b)).at(-1) || '0';
     const letzteUhrzeit = dokMap.get(letzteNr)?.uhrzeit || '';
-
-    const ergebnisRows = parseErgebnisse(csvErg, einst.rennnummer);
+    const ergebnisRows  = parseErgebnisse(csvErg, einst.rennnummer);
 
     ladeText.textContent = 'Seiten aufbauen …';
     let allHTML = '';
@@ -814,11 +871,10 @@ dokMap.forEach(dok => {
     dokNrs.forEach((nr, i) => {
       const dok = dokMap.get(nr);
       if (i > 0) allHTML += '<div class="seitentrenn"></div>';
-    const result = buildStrafseite(einst, dok, dok.fahrer, qrCounter);
-
-allHTML += result.html;
-alleQrIds.push(...result.qrIds);
-qrCounter = result.qrCounter;
+      const result = buildStrafseite(einst, dok, dok.fahrer, qrCounter);
+      allHTML += result.html;
+      alleQrIds.push(...result.qrIds);
+      qrCounter = result.qrCounter;
     });
 
     allHTML += '<div class="seitentrenn"></div>';
@@ -829,14 +885,14 @@ qrCounter = result.qrCounter;
     ladeText.textContent = 'QR-Codes generieren …';
     alleQrIds.forEach(({ id, url }) => {
       const el = document.getElementById(id);
-      if (el && url) new QRCode(el, { text: url, width: 64, height: 64, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+      if (el && url) new QRCode(el, { text: url, width: 58, height: 58, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.M });
     });
 
     document.getElementById('ladescreen').style.display = 'none';
 
   } catch (err) {
     ladeFehler.style.display = 'block';
-    ladeFehler.textContent = `Fehler: ${err.message}`;
+    ladeFehler.textContent = `Fehler beim Laden: ${err.message}. Stelle sicher, dass die Google Sheets Datei veröffentlicht ist.`;
     ladeText.textContent = 'Laden fehlgeschlagen';
     console.error(err);
   }
